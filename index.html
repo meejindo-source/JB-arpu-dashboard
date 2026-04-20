@@ -334,11 +334,15 @@ function renderRebateTab(){
         <div style="font-size:11px;color:var(--sub);margin-bottom:14px">변경전: ${bDates.join(', ')||'-'} · 변경후: ${aDates.join(', ')||'-'}</div>`;
  
       for(const ch of changes){
-        const bCnt=dvCnt(ch.model,bDates);
-        const aCnt=dvCnt(ch.model,aDates.slice(0,Math.max(bDates.length,1)));
+        // 일평균 기준 판매 비교
+        const bCntTotal=dvCnt(ch.model,bDates);
+        const aCntTotal=dvCnt(ch.model,aDates);
+        const bDayAvg=bDates.length?Math.round(bCntTotal/bDates.length):0;
+        const aDayAvg=aDates.length?Math.round(aCntTotal/aDates.length):0;
+        const bCnt=bDayAvg; const aCnt=aDayAvg;
+        const cntDiff=aCnt-bCnt;
         const bAvg=dvAvgArpu(ch.model,bDates);
         const aAvg=dvAvgArpu(ch.model,aDates);
-        const cntDiff=aCnt-bCnt;
         const dvArpuDiff=aAvg-bAvg;
         const isLow=aAvg>0&&aAvg<G.target;
  
@@ -361,7 +365,7 @@ function renderRebateTab(){
               <span style="font-size:11px;color:var(--sub);margin-left:8px">${ch.nick}</span>
             </div>
             <div style="display:flex;gap:12px;font-size:11px;flex-wrap:wrap">
-              ${bCnt||aCnt?`<span>판매: <b class="mono" style="color:${cntDiff>0?'var(--up)':cntDiff<0?'var(--down)':'var(--sub)'}">${bCnt}건→${aCnt}건 (${cntDiff>=0?'+':''}${cntDiff}건)</b></span>`:''}
+              ${bCnt||aCnt?`<span>판매(일평균): <b class="mono" style="color:${cntDiff>0?'var(--up)':cntDiff<0?'var(--down)':'var(--sub)'}">${bCnt}건→${aCnt}건 (${cntDiff>=0?'+':''}${cntDiff}건)</b> <span style="font-size:10px;color:var(--sub)">[변경전 ${bDates.join(', ')} 평균 / 변경후 ${aDates.join(', ')} 평균]</span></span>`:''}
               ${bAvg&&aAvg?`<span>단말ARPU: <b class="mono" style="color:${dvArpuDiff>=0?'var(--up)':'var(--down)'}">${fmt(bAvg)}→${fmt(aAvg)}</b></span>`:''}
             </div>
           </div>
